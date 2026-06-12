@@ -1,0 +1,13 @@
+target/
+
+.idea/
+*.iml
+
+*.log
+logs/
+
+.DS_Store
+Thumbs.db
+
+src/main/resources/application-local.yml
+src/main/resources/application-*.local.yml

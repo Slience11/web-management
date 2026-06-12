@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itheima.mapper.ClazzMapper">
+    <!--  新增班级信息-->
+    <insert id="insert">
+        insert into clazz(name , room , begin_date , end_date , master_id , subject, create_time , update_time)
+            value (#{name},#{room},#{beginDate},#{endDate},#{masterId},#{subject},#{createTime},#{updateTime});
+    </insert>
+
+    <!-- 更新班级信息-->
+    <update id="update">
+        update clazz
+        <set>
+            <if test="name != null">name = #{name} ,</if>
+            <if test="room != null">room = #{room} ,</if>
+            <if test="beginDate != null">begin_date = #{beginDate} ,</if>
+            <if test="endDate != null">end_date = #{endDate} ,</if>
+            <if test="masterId != null">master_id = #{masterId} ,</if>
+            <if test="subject != null">subject = #{subject} ,</if>
+        </set>
+        where id =#{id};
+    </update>
+
+    <!-- 根据id删除班级信息-->
+    <delete id="deleteById">
+        delete from clazz where id = #{id}
+    </delete>
+
+    <!-- 条件查询班级信息   -->
+    <select id="getClazzInfo" resultType="com.itheima.pojo.Clazz">
+        select clazz.id , clazz.name , clazz.room , clazz.begin_date, clazz.end_date, clazz.master_id, clazz.create_time, clazz.update_time, emp.name as master_name
+        from clazz left join emp on clazz.master_id = emp.id
+        <where>
+            <if test="name != null and name != ''">
+            clazz.name like concat('%', #{name}, '%')
+            </if>
+
+            <if test="end != null and begin != null">
+                and clazz.begin_date  &gt; #{begin} and clazz.end_date  &lt; #{end}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据id查询班级信息-->
+    <select id="getById" resultType="com.itheima.pojo.Clazz">
+        select id, name, room, begin_date, end_date, master_id, subject, create_time, update_time from clazz where id = #{id};
+    </select>
+
+    <!--查询所有班级信息-->
+    <select id="getAllInfo" resultType="com.itheima.pojo.Clazz">
+        select id, name, room, begin_date, end_date, master_id, subject, create_time, update_time from clazz;
+    </select>
+
+    <!-- 统计班级人数-->
+    <select id="getClazzData" resultType="java.util.Map">
+        SELECT
+            c.name AS clazz,
+            COUNT(s.id) AS num
+        FROM clazz c
+                 LEFT JOIN student s ON s.clazz_id = c.id
+        GROUP BY c.id,c.name
+        ORDER BY num desc;
+    </select>
+</mapper>
