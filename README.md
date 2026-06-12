@@ -35,3 +35,15 @@ mvn spring-boot:run
 ```bash
 mvn -DskipTests package
 ```
+
+## Frontend
+
+The Vue 3 + Element Plus frontend is in `frontend/`.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+By default, Vite proxies `/api` to `http://localhost:8080`.
