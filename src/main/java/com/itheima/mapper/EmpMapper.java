@@ -31,8 +31,8 @@ public interface EmpMapper {
      * 保存员工基础信息
      */
     @Options(useGeneratedKeys = true,keyProperty = "id")//插入成功后，将主键值回填到emp对象中
-    @Insert("insert into emp(username, name, gender, phone, job, salary, image, entry_date, dept_id, create_time, update_time) " +
-            "values (#{username},#{name},#{gender},#{phone},#{job},#{salary},#{image},#{entryDate},#{deptId},#{createTime},#{updateTime})")
+    @Insert("insert into emp(username, password, name, gender, phone, job, salary, image, entry_date, dept_id, create_time, update_time) " +
+            "values (#{username},#{password},#{name},#{gender},#{phone},#{job},#{salary},#{image},#{entryDate},#{deptId},#{createTime},#{updateTime})")
     void insert(Emp emp);
     //    @Insert("insert into emp(username, name, gender, phone, job, salary, image, entry_date, dept_id, create_time, update_time) " +
 //            "values (#{username},#{name},#{gender},#{phone},#{job},#{salary},#{image},#{entryDate},#{deptId},#{createTime},#{updateTime})")
@@ -83,6 +83,9 @@ public interface EmpMapper {
     /**
      * 查询登录信息
      */
-    @Select("select id,username ,name from emp where username = #{username} and password = #{password}")
-    Emp getInfoByUsernameAndPassword(Emp emp);
+    @Select("select id, username, password, name from emp where username = #{username}")
+    Emp getByUsername(String username);
+
+    @Update("update emp set password = #{password}, update_time = now() where id = #{id}")
+    void updatePassword(@Param("id") Integer id, @Param("password") String password);
 }

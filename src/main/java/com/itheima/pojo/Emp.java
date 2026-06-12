@@ -1,5 +1,6 @@
 package com.itheima.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.itheima.validation.ValidationGroups;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -9,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,6 +25,8 @@ public class Emp {
     private String username;
 
     @NotBlank(message = "密码不能为空", groups = ValidationGroups.Login.class)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ToString.Exclude
     private String password;
 
     @NotBlank(message = "姓名不能为空", groups = ValidationGroups.Create.class)
