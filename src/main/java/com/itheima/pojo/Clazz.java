@@ -1,5 +1,10 @@
 package com.itheima.pojo;
 
+import com.itheima.validation.ValidationGroups;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,16 +16,30 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Clazz {
-    private Integer id; //ID
-    private String name; //班级名称
-    private String room; //班级教室
-    private LocalDate beginDate; //开课时间
-    private LocalDate endDate; //结课时间
-    private Integer masterId; //班主任
-    private Integer subject; //学科
-    private LocalDateTime createTime; //创建时间
-    private LocalDateTime updateTime; //修改时间
+    @NotNull(message = "班级ID不能为空", groups = ValidationGroups.Update.class)
+    private Integer id;
 
-    private String masterName; //班主任姓名
-    private String status; //班级状态 - 未开班 , 在读 , 已结课
+    @NotBlank(message = "班级名称不能为空", groups = ValidationGroups.Create.class)
+    private String name;
+
+    @NotBlank(message = "教室不能为空", groups = ValidationGroups.Create.class)
+    private String room;
+
+    @NotNull(message = "开课日期不能为空", groups = ValidationGroups.Create.class)
+    private LocalDate beginDate;
+
+    @NotNull(message = "结课日期不能为空", groups = ValidationGroups.Create.class)
+    private LocalDate endDate;
+
+    private Integer masterId;
+
+    @NotNull(message = "学科不能为空", groups = ValidationGroups.Create.class)
+    @Min(value = 1, message = "学科参数不合法", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    @Max(value = 20, message = "学科参数不合法", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    private Integer subject;
+
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
+    private String masterName;
+    private String status;
 }

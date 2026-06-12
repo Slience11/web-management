@@ -5,16 +5,26 @@ import com.itheima.pojo.EmpQueryParam;
 import com.itheima.pojo.PageResult;
 import com.itheima.pojo.Result;
 import com.itheima.service.EmpService;
+import com.itheima.validation.ValidationGroups;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
+@Validated
 @RequestMapping("/emps")
 @RestController
 public class EmpController {
@@ -22,67 +32,45 @@ public class EmpController {
     @Autowired
     private EmpService empService;
 
-    /**
-     * 条件分页查询
-     */
     @GetMapping
-    public Result page(EmpQueryParam empQueryParam){
-        log.info("分页查询：{}",empQueryParam);
-        PageResult<Emp> pageResult =empService.page(empQueryParam);
+    public Result page(@Validated EmpQueryParam empQueryParam) {
+        log.info("Query employee page: {}", empQueryParam);
+        PageResult<Emp> pageResult = empService.page(empQueryParam);
         return Result.success(pageResult);
     }
 
-    /**
-     * 新增员工信息
-     */
     @PostMapping
-    //接收JOSN格式的数据 需要使用@RequestBody！！！！！！！！！！
-    public Result save(@RequestBody Emp emp) throws Exception{
-        log.info("添加员工信息：{}",emp);
+    public Result save(@RequestBody @Validated(ValidationGroups.Create.class) Emp emp) throws Exception {
+        log.info("Create employee: {}", emp);
         empService.save(emp);
         return Result.success();
     }
-    /**
-     * 批量删除员工信息
-     */
+
     @DeleteMapping
-    public Result delete(@RequestParam List<Integer> ids){
-        log.info("批量删除员工信息：{}",ids);
+    public Result delete(@RequestParam @NotEmpty(message = "员工ID列表不能为空") List<Integer> ids) {
+        log.info("Delete employees: {}", ids);
         empService.delete(ids);
         return Result.success();
     }
 
-    /**
-     * 修改员工信息（查询回显）
-     */
     @GetMapping("/{id}")
-    public Result getById(@PathVariable Integer id){
-//    public Result getInfoById(@PathVariable Integer id){
-        log.info("查询员工信息：{}",id);
+    public Result getById(@PathVariable @NotNull(message = "员工ID不能为空") Integer id) {
+        log.info("Get employee: {}", id);
         Emp emp = empService.getInfo(id);
-//        Emp emp = empService.getInfoById(id);
         return Result.success(emp);
     }
 
-    /**
-     * 修改员工信息(修改数据)
-     */
     @PutMapping
-    public Result update(@RequestBody Emp emp){
-        log.info("修改员工信息：{}",emp);
+    public Result update(@RequestBody @Validated(ValidationGroups.Update.class) Emp emp) {
+        log.info("Update employee: {}", emp);
         empService.update(emp);
         return Result.success();
     }
 
-    /**
-     * 查询所有员工信息
-     */
     @GetMapping("/list")
-    public Result list(){
-        log.info("查询所有员工信息");
+    public Result list() {
+        log.info("List all employees");
         List<Emp> list = empService.allInfo();
         return Result.success(list);
     }
-
-
 }

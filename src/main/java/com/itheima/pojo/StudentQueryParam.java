@@ -1,5 +1,7 @@
 package com.itheima.pojo;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,9 +12,17 @@ import lombok.NoArgsConstructor;
 public class StudentQueryParam {
 
     private String name;
-    private Integer degree;
-    private Integer clazzId;
-    private Integer page = 1; //页码
-    private Integer pageSize = 10; //每页展示记录数
 
+    @Min(value = 1, message = "学历参数不合法")
+    @Max(value = 6, message = "学历参数不合法")
+    private Integer degree;
+
+    private Integer clazzId;
+
+    @Min(value = 1, message = "页码不能小于1")
+    private Integer page = 1;
+
+    @Min(value = 1, message = "每页记录数不能小于1")
+    @Max(value = 100, message = "每页记录数不能大于100")
+    private Integer pageSize = 10;
 }

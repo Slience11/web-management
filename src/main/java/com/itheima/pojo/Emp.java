@@ -1,5 +1,13 @@
 package com.itheima.pojo;
 
+import com.itheima.validation.ValidationGroups;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -8,23 +16,40 @@ import java.util.List;
 
 @Data
 public class Emp {
-    private Integer id; //ID,主键
-    private String username; //用户名
-    private String password; //密码
-    private String name; //姓名
-    private Integer gender; //性别, 1:男, 2:女
-    private String phone; //手机号
-    private Integer job; //职位, 1:班主任,2:讲师,3:学工主管,4:教研主管,5:咨询师
-    private Integer salary; //薪资
-    private String image; //头像
-    private LocalDate entryDate; //入职日期
-    private Integer deptId; //关联的部门ID
-    private LocalDateTime createTime; //创建时间
-    private LocalDateTime updateTime; //修改时间
+    @NotNull(message = "员工ID不能为空", groups = ValidationGroups.Update.class)
+    private Integer id;
 
-    //封装部门名
+    @NotBlank(message = "用户名不能为空", groups = {ValidationGroups.Create.class, ValidationGroups.Login.class})
+    private String username;
+
+    @NotBlank(message = "密码不能为空", groups = ValidationGroups.Login.class)
+    private String password;
+
+    @NotBlank(message = "姓名不能为空", groups = ValidationGroups.Create.class)
+    private String name;
+
+    @NotNull(message = "性别不能为空", groups = ValidationGroups.Create.class)
+    @Min(value = 1, message = "性别参数不合法", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    @Max(value = 2, message = "性别参数不合法", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    private Integer gender;
+
+    @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    private String phone;
+
+    @Min(value = 1, message = "职位参数不合法", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    @Max(value = 5, message = "职位参数不合法", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    private Integer job;
+
+    @PositiveOrZero(message = "薪资不能为负数", groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
+    private Integer salary;
+
+    private String image;
+    private LocalDate entryDate;
+    private Integer deptId;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
     private String deptName;
 
-    //封装工作经历对象EmpExpr
+    @Valid
     private List<EmpExpr> exprList;
 }

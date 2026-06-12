@@ -1,9 +1,12 @@
 package com.itheima.exception;
 
 import com.itheima.pojo.Result;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,7 +30,23 @@ public class GlobalExceptionHandle {
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
     public Result handleValidationException(Exception e) {
         log.warn("Validation exception: {}", e.getMessage());
+        if (e instanceof MethodArgumentNotValidException ex) {
+            return Result.error(resolveBindingMessage(ex.getBindingResult()));
+        }
+        if (e instanceof BindException ex) {
+            return Result.error(resolveBindingMessage(ex.getBindingResult()));
+        }
         return Result.error("请求参数不合法");
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Result handleConstraintViolationException(ConstraintViolationException e) {
+        log.warn("Constraint violation exception: {}", e.getMessage());
+        String message = e.getConstraintViolations().stream()
+                .findFirst()
+                .map(violation -> violation.getMessage())
+                .orElse("请求参数不合法");
+        return Result.error(message);
     }
 
     @ExceptionHandler(Exception.class)
@@ -47,5 +66,13 @@ public class GlobalExceptionHandle {
         } catch (Exception ignored) {
             return "数据已存在";
         }
+    }
+
+    private String resolveBindingMessage(BindingResult bindingResult) {
+        FieldError fieldError = bindingResult.getFieldError();
+        if (fieldError != null) {
+            return fieldError.getDefaultMessage();
+        }
+        return "请求参数不合法";
     }
 }
