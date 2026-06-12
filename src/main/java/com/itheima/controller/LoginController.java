@@ -6,27 +6,28 @@ import com.itheima.pojo.Result;
 import com.itheima.service.EmpService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("login")
+@RequestMapping("/login")
 public class LoginController {
 
     @Autowired
-    private  EmpService empService;
+    private EmpService empService;
 
-    /**
-     * 登录信息
-     */
     @PostMapping
-    public Result login(@RequestBody Emp emp){
+    public Result login(@RequestBody Emp emp) {
         LoginInfo info = empService.login(emp);
-        log.info("登录信息：{}",info);
-        if(info != null){
+        if (info != null) {
+            log.info("Employee login succeeded: username={}", emp.getUsername());
             return Result.success(info);
         }
+
+        log.warn("Employee login failed: username={}", emp.getUsername());
         return Result.error("用户名或密码错误");
     }
-
 }

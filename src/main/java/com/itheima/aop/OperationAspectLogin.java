@@ -3,7 +3,6 @@ package com.itheima.aop;
 import com.itheima.mapper.EmpLogMapper;
 import com.itheima.pojo.Emp;
 import com.itheima.pojo.EmpLoginLog;
-import com.itheima.pojo.LoginInfo;
 import com.itheima.pojo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 @Slf4j
 @Aspect
@@ -25,34 +23,38 @@ public class OperationAspectLogin {
 
     @Around("execution(* com.itheima.controller.LoginController.login(..))")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-        EmpLoginLog empLoginLog = new EmpLoginLog();
-        Result result;
-        try{
-            log.info("记录登录日志");
-            // 执行方法，记录耗时
-            long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
+        Emp emp = getLoginParam(joinPoint.getArgs());
+        Result result = null;
+
+        try {
             result = (Result) joinPoint.proceed();
-            long endTime = System.currentTimeMillis();
-            long costTime = endTime - startTime;
-
-            // 获取参数
-            Object[] args = joinPoint.getArgs();
-            Emp emp = (Emp) args[0];
-            log.info("登录信息：{}",emp);
-
-            // 设置参数
-            empLoginLog.setUsername(emp.getUsername());
-            empLoginLog.setPassword(emp.getPassword());
-            empLoginLog.setLoginTime(LocalDateTime.now());
-            empLoginLog.setIsSuccess(result.getCode() == 1 ? (short)1 : (short)0);
-            empLoginLog.setCostTime(costTime);
-            LoginInfo loginInfo = (LoginInfo) (result.getData());
-            empLoginLog.setJwt(loginInfo.getToken());
-
-        }finally {
-            empLogMapper.insertLoginLog(empLoginLog);
+            return result;
+        } finally {
+            saveLoginLog(emp, result, System.currentTimeMillis() - startTime);
         }
-        return result;
     }
 
+    private Emp getLoginParam(Object[] args) {
+        if (args != null && args.length > 0 && args[0] instanceof Emp emp) {
+            return emp;
+        }
+        return null;
+    }
+
+    private void saveLoginLog(Emp emp, Result result, long costTime) {
+        EmpLoginLog empLoginLog = new EmpLoginLog();
+        empLoginLog.setUsername(emp == null ? null : emp.getUsername());
+        empLoginLog.setPassword("");
+        empLoginLog.setLoginTime(LocalDateTime.now());
+        empLoginLog.setIsSuccess(result != null && Integer.valueOf(1).equals(result.getCode()) ? (short) 1 : (short) 0);
+        empLoginLog.setJwt("");
+        empLoginLog.setCostTime(costTime);
+
+        try {
+            empLogMapper.insertLoginLog(empLoginLog);
+        } catch (Exception e) {
+            log.warn("Save login log failed: {}", e.getMessage());
+        }
+    }
 }
